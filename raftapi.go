@@ -145,9 +145,9 @@ func (r raftAPI) AppendEntriesPipeline(id raft.ServerID, target raft.ServerAddre
 	}
 	ctx := context.TODO()
 	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	stream, err := c.AppendEntriesPipeline(ctx)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 	rpa := &raftPipelineAPI{
