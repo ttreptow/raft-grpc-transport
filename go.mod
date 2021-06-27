@@ -1,4 +1,4 @@
-module github.com/Jille/raft-grpc-transport
+module github.com/ttreptow/raft-grpc-transport
 
 go 1.16
 

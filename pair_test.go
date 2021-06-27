@@ -9,8 +9,8 @@ import (
 	"reflect"
 	"testing"
 
-	transport "github.com/Jille/raft-grpc-transport"
 	"github.com/hashicorp/raft"
+	transport "github.com/ttreptow/raft-grpc-transport"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )

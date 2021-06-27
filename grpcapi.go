@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	pb "github.com/Jille/raft-grpc-transport/proto"
 	"github.com/hashicorp/raft"
+	pb "github.com/ttreptow/raft-grpc-transport/proto"
 )
 
 // These are requests incoming over gRPC that we need to relay to the Raft engine.
