@@ -145,11 +145,12 @@ func (r raftAPI) AppendEntriesPipeline(id raft.ServerID, target raft.ServerAddre
 	}
 	ctx := context.TODO()
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	stream, err := c.AppendEntriesPipeline(ctx)
 	if err != nil {
 		return nil, err
 	}
-	rpa := raftPipelineAPI{
+	rpa := &raftPipelineAPI{
 		stream:     stream,
 		cancel:     cancel,
 		inflightCh: make(chan *appendFuture, 20),
@@ -169,7 +170,7 @@ type raftPipelineAPI struct {
 
 // AppendEntries is used to add another request to the pipeline.
 // The send may block which is an effective form of back-pressure.
-func (r raftPipelineAPI) AppendEntries(req *raft.AppendEntriesRequest, resp *raft.AppendEntriesResponse) (raft.AppendFuture, error) {
+func (r *raftPipelineAPI) AppendEntries(req *raft.AppendEntriesRequest, resp *raft.AppendEntriesResponse) (raft.AppendFuture, error) {
 	af := &appendFuture{
 		start:   time.Now(),
 		request: req,
@@ -190,12 +191,12 @@ func (r raftPipelineAPI) AppendEntries(req *raft.AppendEntriesRequest, resp *raf
 
 // Consumer returns a channel that can be used to consume
 // response futures when they are ready.
-func (r raftPipelineAPI) Consumer() <-chan raft.AppendFuture {
+func (r *raftPipelineAPI) Consumer() <-chan raft.AppendFuture {
 	return r.doneCh
 }
 
 // Close closes the pipeline and cancels all inflight RPCs
-func (r raftPipelineAPI) Close() error {
+func (r *raftPipelineAPI) Close() error {
 	r.cancel()
 	r.inflightChMtx.Lock()
 	close(r.inflightCh)
@@ -203,7 +204,7 @@ func (r raftPipelineAPI) Close() error {
 	return nil
 }
 
-func (r raftPipelineAPI) receiver() {
+func (r *raftPipelineAPI) receiver() {
 	for af := range r.inflightCh {
 		msg, err := r.stream.Recv()
 		if err != nil {

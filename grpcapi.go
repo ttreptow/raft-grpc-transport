@@ -12,6 +12,7 @@ import (
 
 type gRPCAPI struct {
 	manager *Manager
+	pb.UnimplementedRaftTransportServer
 }
 
 func (g gRPCAPI) handleRPC(command interface{}, data io.Reader) (interface{}, error) {
